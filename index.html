@@ -55,11 +55,11 @@
             <span id="stat-total-topics" class="text-base font-extrabold text-blue-400">0</span>
           </div>
           <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-700/30">
-            <span class="block text-[9px] font-bold text-slate-400 mb-0.5">🟢รับทราบแล้ว</span>
+            <span class="block text-[9px] font-bold text-slate-400 mb-0.5">🟢รับทราบ</span>
             <span id="stat-read-count" class="text-base font-extrabold text-emerald-400">0</span>
           </div>
           <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-700/30">
-            <span class="block text-[9px] font-bold text-slate-400 mb-0.5">⏳รอรับทราบ</span>
+            <span class="block text-[9px] font-bold text-slate-400 mb-0.5">⏳รอคำตอบ</span>
             <span id="stat-pending-groups" class="text-base font-extrabold text-amber-400">0</span>
           </div>
         </div>
@@ -142,13 +142,11 @@
       document.getElementById('target-group-checkboxes').innerHTML = html;
     }
 
-    // 🔒 ย้ายรหัสผ่านไปเช็คหลังบ้านผ่าน POST แทนการใส่ไว้ดื้อๆ
     function toggleGMRole() {
       if (!isGM) {
         let password = prompt("กรุณากรอกรหัสผ่านสำหรับสิทธิ์ GM:");
         if (password === null) return;
         
-        // ส่งรหัสผ่านไปเช็คความถูกต้องที่ Apps Script เพื่อความปลอดภัย
         fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -269,7 +267,7 @@
       document.getElementById('stat-svg-circle').setAttribute("stroke-dasharray", `${percent}, 100`);
     }
 
-    // 📊 ปรับปรุง UX ส่วนสถิติให้เห็นกลุ่มที่ยังค้างชัดเจนขึ้น
+    // 📊 ฟังก์ชันสร้างตารางสถิติกลุ่ม (เลื่อนเวลาลงด้านล่างและย่อขนาดแล้ว)
     function generateGroupStatsHtml(topicId, groupStats, assignments) {
       if (!groupStats) return '';
       let activeStats = groupStats.filter(stat => stat.isTarget);
@@ -282,7 +280,6 @@
         let groupUsers = assignments ? assignments.filter(a => a.group === stat.groupName && a.status === 'รับทราบแล้ว') : [];
         let collapseId = `list-${topicId}-${idx}`;
         
-        // 🎨 เปลี่ยนสีถ้ามีคนยังไม่ได้ลงชื่อในกลุ่มนั้นๆ เพื่อให้เตะตา GM
         let hasPending = stat.pendingCount > 0;
         let badgeClass = hasPending 
           ? "text-[10px] font-extrabold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200 shrink-0 whitespace-nowrap"
@@ -295,7 +292,7 @@
                 <span class="truncate">👥 ${stat.groupName}</span>
                 <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </span>
-              <span class="${badgeClass}">${stat.ackCount} คน ${hasPending ? '(ค้าง)' : ''}</span>
+              <span class="${badgeClass}">${stat.ackCount} คน</span>
             </button>
             <div id="${collapseId}" class="hidden p-1.5 bg-slate-50/50 border-t border-slate-100 space-y-1 max-h-36 overflow-y-auto">
         `;
@@ -305,9 +302,9 @@
         } else {
           groupUsers.forEach(user => {
             html += `
-              <div class="bg-white p-1.5 rounded border border-slate-100 text-slate-600 flex justify-between items-center gap-2 overflow-hidden">
-                <div class="text-[10px] font-bold truncate flex-1">👤 ${user.name}</div>
-                <div class="text-[9px] text-slate-400 font-semibold tracking-tight shrink-0 whitespace-nowrap text-right">📅 ${user.time}</div>
+              <div class="bg-white p-1.5 rounded border border-slate-100 text-slate-600 flex flex-col justify-start gap-0.5 overflow-hidden">
+                <div class="text-[10px] font-bold truncate">👤 ${user.name}</div>
+                <div class="text-[8px] text-slate-400 font-medium tracking-tight">📅 ${user.time}</div>
               </div>
             `;
           });
@@ -366,7 +363,6 @@
 
     function toggleDetails(elementId) { document.getElementById(elementId).classList.toggle('hidden'); }
 
-    // 🗑️ ฟังก์ชันฝั่งหน้าบ้านสำหรับกดส่งคำสั่งลบข้อมูลไปยัง Google Sheets
     function deleteJob(topicId, title) {
       if (!confirm(`คุณชุลีวัลย์ แน่ใจใช่ไหมครับว่าต้องการลบใบงานเรื่อง "${title}"? \n(การลบนี้จะนำข้อมูลสถิติออกจากชีตทั้งหมด)`)) return;
       
