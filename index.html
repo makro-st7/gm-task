@@ -13,11 +13,10 @@
 </head>
 <body class="pb-24">
 
-  <!-- Header -->
   <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-4 py-5 shadow-md sticky top-0 z-50">
     <div class="max-w-md mx-auto flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold tracking-wide flex items-center gap-1.5">St.7 รับทราบงาน GM</h1>
+        <h1 class="text-base font-bold tracking-wide flex items-center gap-1.5">St.7 รับทราบงาน GM</h1>
         <p id="user-info" class="text-[11px] text-blue-100 mt-0.5 opacity-90">Makro Nakhonratchasima 1</p>
       </div>
       <button onclick="toggleGMRole()" id="gm-toggle-btn" class="text-xs font-bold bg-white/15 hover:bg-white/25 text-white px-3.5 py-2 rounded-xl backdrop-blur-md border border-white/10 shadow-inner active:scale-95 transition flex items-center gap-1.5">
@@ -27,86 +26,92 @@
   </div>
 
   <div class="max-w-md mx-auto px-4 mt-4">
-    <!-- แถบสลับเมนูสำหรับ GM -->
     <div id="gm-tabs" class="hidden flex bg-slate-200 p-1 rounded-xl mb-4 gap-1">
-      <button onclick="switchTab('dashboard')" id="tab-dashboard-btn" class="flex-1 text-center font-bold text-xs py-2.5 rounded-lg bg-white text-slate-800 shadow-sm transition">📋 บอร์ดกระจายงาน</button>
-      <button onclick="switchTab('report')" id="tab-report-btn" class="flex-1 text-center font-bold text-xs py-2.5 rounded-lg text-slate-600 hover:text-slate-900 transition">📊 รายงานสรุปรายบุคคล</button>
+      <button onclick="switchTab('create')" id="tab-create-btn" class="flex-1 text-center font-bold text-xs py-2.5 rounded-lg bg-white text-slate-800 shadow-sm transition">➕ สร้างเรื่องแจ้งงาน</button>
+      <button onclick="switchTab('dashboard')" id="tab-dashboard-btn" class="flex-1 text-center font-bold text-xs py-2.5 rounded-lg text-slate-600 hover:text-slate-900 transition">📋 บอร์ดงานและสถิติ</button>
     </div>
 
-    <!-- =============== VIEW: DASHBOARD =============== -->
+    <div id="global-dashboard-stats" class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-5 shadow-xl mb-6 border border-slate-700/40">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">📊 สรุปความคืบหน้าภาพรวมสาขา</h3>
+        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">Realtime</span>
+      </div>
+      
+      <div class="flex items-center gap-5">
+        <div class="relative flex items-center justify-center shrink-0 w-20 h-20">
+          <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+            <path class="text-slate-700" stroke-width="3" stroke="currentColor" fill="transparent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path id="stat-svg-circle" class="text-emerald-400 transition-all duration-1000 ease-out" stroke-dasharray="0, 100" stroke-linecap="round" stroke-width="3.5" stroke="currentColor" fill="transparent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          </svg>
+          <div class="absolute text-center">
+            <span id="total-ack-percent" class="text-lg font-black text-white">0%</span>
+            <span class="block text-[8px] text-slate-400 font-medium -mt-1">สำเร็จ</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 flex-1 text-center">
+          <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-700/30">
+            <span class="block text-[9px] font-bold text-slate-400 mb-0.5">📝ทั้งหมด</span>
+            <span id="stat-total-topics" class="text-base font-extrabold text-blue-400">0</span>
+          </div>
+          <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-700/30">
+            <span class="block text-[9px] font-bold text-slate-400 mb-0.5">🟢รับทราบแล้ว</span>
+            <span id="stat-read-count" class="text-base font-extrabold text-emerald-400">0</span>
+          </div>
+          <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-700/30">
+            <span class="block text-[9px] font-bold text-slate-400 mb-0.5">⏳รอรับทราบ</span>
+            <span id="stat-pending-groups" class="text-base font-extrabold text-amber-400">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-create-job" class="hidden bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6">
+      <h2 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">➕ สร้างหัวข้อเรื่องแจ้งงานใหม่</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">หัวข้อเรื่อง</label>
+          <input type="text" id="job-title" placeholder="เช่น แจ้งนโยบายมาตรการความปลอดภัยใหม่" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">รายละเอียดงาน / คำสั่ง</label>
+          <textarea id="job-detail" rows="4" placeholder="ระบุข้อความอธิบายคำสั่งงานที่นี่..." class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-2">👥 เลือกกลุ่มบุคคลที่ต้องให้รับทราบ (เลือกได้มากกว่า 1)</label>
+          <div id="target-group-checkboxes" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100"></div>
+        </div>
+        <button onclick="submitJob()" id="submit-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl text-sm shadow-md shadow-blue-100 hover:bg-blue-700 transition">🚀 ส่งเรื่องแจ้งงานตามกลุ่ม</button>
+      </div>
+    </div>
+
     <div id="view-dashboard">
-      <!-- 🟩 ปรับปรุงใหม่: ย้ายบล็อกสถิติภาพรวมออกมาด้านนอกเพื่อให้ทั้ง GM และ SM เห็นร่วมกันได้ -->
-      <div id="global-dashboard-stats" class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-2xl p-5 shadow-lg mb-6">
-        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">📊 ภาพรวมการรับทราบของ SM ทั้งหมด</h3>
-        <div class="flex items-end justify-between mb-2">
-          <div>
-            <span id="total-ack-percent" class="text-3xl font-extrabold text-emerald-400">0%</span>
-            <span class="text-xs text-slate-400 block mt-1">จากคำสั่งงานทั้งหมด</span>
-          </div>
-          <div class="text-right text-xs text-slate-300">
-            <span id="stat-read-count" class="font-bold text-emerald-400">0</span> / 
-            <span id="stat-total-count" class="font-bold text-slate-400">0</span> รายการ
-          </div>
-        </div>
-        <div class="w-full bg-slate-700 rounded-full h-2.5">
-          <div id="total-progress-bar" class="bg-emerald-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <!-- ฟอร์มสร้างงานใหม่ของ GM (จะถูกเปิด-ปิดผ่านสิทธิ์ GM เหมือนเดิม) -->
-      <div id="gm-form-section" class="hidden bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6">
-        <h2 class="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">➕ สร้างหัวข้อเรื่องแจ้งงานใหม่</h2>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">หัวข้อเรื่อง</label>
-            <input type="text" id="job-title" placeholder="เช่น แจ้งนโยบายมาตรการความปลอดภัยใหม่" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">รายละเอียดงาน / คำสั่ง</label>
-            <textarea id="job-detail" rows="3" placeholder="ระบุข้อความอธิบายคำสั่งงานที่นี่..." class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-2">เลือกแผนกที่ต้องรับทราบ</label>
-            <div id="sm-department-groups" class="space-y-3 max-h-64 overflow-y-auto p-1"></div>
-          </div>
-          <button onclick="submitJob()" id="submit-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl text-sm shadow-md shadow-blue-100 hover:bg-blue-700 transition">🚀 ส่งเรื่องแจ้งงาน</button>
-        </div>
-      </div>
-
-      <h2 id="list-header" class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">📋 รายการแจ้งงานล่าสุด</h2>
+      <h2 id="list-header" class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">📋 รายการแจ้งงานล่าสุด</h2>
       <div id="task-list" class="space-y-4">
-        <div class="text-center py-8 text-slate-400 text-sm">กำลังโหลดข้อมูลรายการงาน...</div>
-      </div>
-    </div>
-
-    <!-- =============== VIEW: REPORT =============== -->
-    <div id="view-report" class="hidden">
-      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">📊 สรุปความคืบหน้าการรับทราบรายบุคคล</h2>
-      <div id="report-list" class="space-y-3">
-        <div class="text-center py-8 text-slate-400 text-sm">กำลังคำนวณและประมวลผลรายงาน...</div>
+        <div class="text-center py-8 text-slate-400 text-xs">กำลังโหลดข้อมูลรายการงาน...</div>
       </div>
     </div>
 
   </div>
 
-  <!-- Pop-up เซ็นรับทราบ -->
   <div id="ack-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-      <h3 class="text-base font-bold text-slate-800 mb-1">✍️ เซ็นรับทราบงานรายบุคคล</h3>
+      <h3 class="text-sm font-bold text-slate-800 mb-1">✍️ เซ็นรับทราบงานรายบุคคล</h3>
       <p id="modal-task-title" class="text-xs text-blue-600 font-medium mb-4">เรื่อง: ...</p>
       <input type="hidden" id="modal-topic-id">
+      
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">1. เลือกชื่อของคุณ</label>
-          <select id="modal-sm-select" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"></select>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">1. เลือกกลุ่มตำแหน่งของคุณ</label>
+          <select id="modal-group-select" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"></select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">2. รหัสผ่านส่วนบุคคลของคุณ</label>
-          <input type="password" id="modal-sm-password" placeholder="••••" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm tracking-widest text-center focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">2. พิมพ์ชื่อ-แผนกของคุณ</label>
+          <input type="text" id="modal-sm-input-name" placeholder="เช่น ข้าวหอม DF" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
         </div>
         <div class="flex gap-2 pt-2">
           <button onclick="closeAckModal()" class="w-1/3 bg-slate-100 text-slate-600 font-medium py-2.5 rounded-xl text-sm">ยกเลิก</button>
-          <button onclick="submitAck()" id="modal-submit-btn" class="w-2/3 bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm shadow-md">🔒 ยืนยันรับทราบ</button>
+          <button onclick="submitAck()" id="modal-submit-btn" class="w-2/3 bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm shadow-md">✅ ยืนยันรับทราบงาน</button>
         </div>
       </div>
     </div>
@@ -115,13 +120,27 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxFC0-0w1bLgHexpjxYi_aTMNYCD6no1rXA28h5xgM3-bAfWXAFNhZQu45vePrilr-jBg/exec"; 
     let isGM = false;
-    let globalSMList = []; 
     let currentTasks = []; 
+
+    const DEFINED_GROUPS = ["Section manager", "Supervisor", "Staff2", "Staff1", "Adecco", "PC", "แม่บ้าน"];
 
     window.onload = function() {
       loadData();
-      fetchSMListBase(); 
+      renderGroupCheckboxes();
     };
+
+    function renderGroupCheckboxes() {
+      let html = '';
+      DEFINED_GROUPS.forEach(group => {
+        html += `
+          <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50/50 transition truncate">
+            <input type="checkbox" name="target-group" value="${group}" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 shrink-0">
+            <span class="text-xs text-slate-700 font-medium truncate">${group}</span>
+          </label>
+        `;
+      });
+      document.getElementById('target-group-checkboxes').innerHTML = html;
+    }
 
     function toggleGMRole() {
       if (!isGM) {
@@ -130,327 +149,225 @@
           isGM = true;
           document.getElementById('gm-toggle-btn').innerHTML = "<span>ออกจากระบบ</span>";
           document.getElementById('gm-toggle-btn').className = "text-xs font-bold bg-red-500 hover:bg-red-600 text-white px-3.5 py-2 rounded-xl shadow-md active:scale-95 transition flex items-center gap-1.5";
-          document.getElementById('user-info').innerText = "โหมดผู้ใช้งาน: คุณสมชาย (GM)";
-          
-          document.getElementById('gm-form-section').classList.remove('hidden');
+          document.getElementById('user-info').innerText = "โหมดผู้ใช้งาน: คุณชุลีวัลย์ (GM)";
           document.getElementById('gm-tabs').classList.remove('hidden'); 
           document.getElementById('list-header').innerText = "📊 รายการงานและสถิติรายชิ้นงาน";
-          
-          renderSMListForm();
-          loadData();
+          switchTab('create');
         } else if (password !== null) { alert("รหัสผ่านไม่ถูกต้อง!"); }
       } else {
         isGM = false;
         document.getElementById('gm-toggle-btn').innerHTML = "<span>เข้าสู่ระบบ</span>";
         document.getElementById('gm-toggle-btn').className = "text-xs font-bold bg-white/15 hover:bg-white/25 text-white px-3.5 py-2 rounded-xl backdrop-blur-md border border-white/10 shadow-inner active:scale-95 transition flex items-center gap-1.5";
         document.getElementById('user-info').innerText = "Makro Nakhonratchasima 1";
-        
-        document.getElementById('gm-form-section').classList.add('hidden');
         document.getElementById('gm-tabs').classList.add('hidden'); 
-        switchTab('dashboard'); 
         document.getElementById('list-header').innerText = "📋 รายการแจ้งงานล่าสุด";
-        
-        document.getElementById('job-title').value = '';
-        document.getElementById('job-detail').value = '';
-        loadData();
+        clearGMForm();
+        switchTab('dashboard');
       }
+    }
+
+    function clearGMForm() {
+      document.getElementById('job-title').value = '';
+      document.getElementById('job-detail').value = '';
+      document.querySelectorAll('input[name="target-group"]:checked').forEach(cb => cb.checked = false);
     }
 
     function switchTab(view) {
+      const createTab = document.getElementById('tab-create-btn');
       const dashTab = document.getElementById('tab-dashboard-btn');
-      const repTab = document.getElementById('tab-report-btn');
+      const createView = document.getElementById('view-create-job');
       const dashView = document.getElementById('view-dashboard');
-      const repView = document.getElementById('view-report');
+      const statsBlock = document.getElementById('global-dashboard-stats');
 
-      if(view === 'dashboard') {
-        dashTab.className = "flex-1 text-center font-bold text-xs py-2.5 rounded-lg bg-white text-slate-800 shadow-sm transition";
-        repTab.className = "flex-1 text-center font-bold text-xs py-2.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
-        dashView.classList.remove('hidden');
-        repView.classList.add('hidden');
-        loadData();
-      } else {
-        repTab.className = "flex-1 text-center font-bold text-xs py-2.5 rounded-lg bg-white text-slate-800 shadow-sm transition";
+      if (!isGM) {
+        createView.classList.add('hidden');
+        dashView.classList.remove('hidden'); // แก้ไขจาก .remove() เป็น .classList.remove()
+        statsBlock.classList.remove('hidden');
+        return;
+      }
+
+      if(view === 'create') {
+        createTab.className = "flex-1 text-center font-bold text-xs py-2.5 rounded-lg bg-white text-slate-800 shadow-sm transition";
         dashTab.className = "flex-1 text-center font-bold text-xs py-2.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        createView.classList.remove('hidden');
         dashView.classList.add('hidden');
-        repView.classList.remove('hidden');
-        loadReportData(); 
+        statsBlock.classList.add('hidden');
+      } else if(view === 'dashboard') {
+        dashTab.className = "flex-1 text-center font-bold text-xs py-2.5 rounded-lg bg-white text-slate-800 shadow-sm transition";
+        createTab.className = "flex-1 text-center font-bold text-xs py-2.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        createView.classList.add('hidden');
+        dashView.classList.remove('hidden');
+        statsBlock.classList.remove('hidden');
+        loadData();
       }
-    }
-
-    function loadReportData() {
-      document.getElementById('report-list').innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">กำลังคำนวณและประมวลผลรายงาน...</div>';
-      fetch(`${API_URL}?action=getReportData`)
-        .then(res => {
-          if (!res.ok) throw new Error('Network response error');
-          return res.json();
-        })
-        .then(data => { 
-          if (data && data.error) {
-            throw new Error(data.message || "Server internal error");
-          }
-          renderReport(data); 
-        })
-        .catch(err => {
-          console.error("Report Error:", err);
-          document.getElementById('report-list').innerHTML = `<div class="text-center py-8 text-rose-500 text-sm">เกิดข้อผิดพลาดในการโหลดรายงาน: ${err.message}</div>`;
-        });
-    }
-
-    function renderReport(reportData) {
-      let html = '';
-      if(!reportData || reportData.length === 0) {
-        html = '<div class="bg-white p-6 rounded-2xl text-center text-slate-400 text-sm border">ไม่พบบันทึกสถิติในระบบ</div>';
-      } else {
-        reportData.forEach((user, index) => {
-          let percentColor = 'text-rose-600';
-          if(user.percent === 100) {
-            percentColor = 'text-emerald-600';
-          } else if(user.percent >= 50) {
-            percentColor = 'text-amber-600';
-          }
-
-          html += `
-            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-              <div class="flex justify-between items-start mb-2">
-                <div>
-                  <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">👤 ${user.name}</h4>
-                  <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-0.5">🏢 แผนก: ${user.department}</span>
-                </div>
-                <div class="text-right">
-                  <span class="text-lg font-black ${percentColor}">${user.percent}%</span>
-                  <span class="text-[9px] text-slate-400 block font-medium">อ่านแล้ว (${user.ackTasks}/${user.totalTasks})</span>
-                </div>
-              </div>
-              
-              <div class="w-full bg-slate-100 rounded-full h-2 mb-2">
-                <div class="h-2 rounded-full transition-all" style="width: ${user.percent}%; background-color: ${user.percent === 100 ? '#10b981' : user.percent >= 50 ? '#f59e0b' : '#ef4444'}"></div>
-              </div>
-          `;
-
-          if (user.pendingTitles && user.pendingTitles.length > 0) {
-            html += `
-              <div class="mt-2 pt-1.5 border-t border-slate-100">
-                <button onclick="toggleDetails('rep-detail-${index}')" class="text-[11px] font-bold text-rose-600 flex items-center justify-between w-full hover:underline">
-                  <span>⚠️ ค้างอ่านอยู่ ${user.pendingTitles.length} เรื่อง (คลิกดูรายการ)</span>
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-                <div id="rep-detail-${index}" class="hidden mt-1.5 p-2 bg-rose-50/50 rounded-xl space-y-1 text-[11px] text-rose-800 border border-rose-100">
-            `;
-            user.pendingTitles.forEach(title => {
-              html += `<div class="truncate pl-2">📌 ${title}</div>`;
-            });
-            html += `</div></div>`;
-          } else {
-            html += `<div class="text-[11px] text-emerald-600 font-bold mt-1">🎉 รับทราบครบถ้วนเรียบร้อยแล้ว</div>`;
-          }
-
-          html += `</div>`;
-        });
-      }
-      document.getElementById('report-list').innerHTML = html;
-    }
-
-    function fetchSMListBase() {
-      fetch(`${API_URL}?action=getSMList`)
-        .then(res => res.json())
-        .then(list => { globalSMList = list; })
-        .catch(err => console.error("Error fetching SM list:", err));
     }
 
     function loadData() {
       const roleQuery = isGM ? 'GM' : 'SM';
       fetch(`${API_URL}?action=getDashboardData&clientRole=${roleQuery}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Network response error');
-          return res.json();
-        })
+        .then(res => res.json())
         .then(data => { 
-          if (data && data.error) {
-            throw new Error(data.message || "Server internal error");
-          }
+          if (data && data.error) throw new Error(data.message);
           currentTasks = data.tasks || [];
           calculateGlobalStats(currentTasks); 
           renderTasks(currentTasks); 
         })
         .catch(err => {
-          console.error("Dashboard Load Error:", err);
-          document.getElementById('task-list').innerHTML = `<div class="text-center py-8 text-rose-500 text-sm">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}</div>`;
+          document.getElementById('task-list').innerHTML = `<div class="text-center py-8 text-rose-500 text-xs">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}</div>`;
         });
     }
 
-    // ฟังก์ชันนี้จะนำค่าทั้งหมดไปคำนวณแล้วนำไปใส่การ์ดสถิติที่แสดงอยู่ด้านบนหน้าจอ
     function calculateGlobalStats(tasks) {
       if (!tasks || tasks.length === 0) {
         document.getElementById('total-ack-percent').innerText = `0%`;
         document.getElementById('stat-read-count').innerText = 0;
-        document.getElementById('stat-total-count').innerText = 0;
-        document.getElementById('total-progress-bar').style.width = `0%`;
+        document.getElementById('stat-total-topics').innerText = 0;
+        document.getElementById('stat-pending-groups').innerText = 0;
+        document.getElementById('stat-svg-circle').setAttribute("stroke-dasharray", "0, 100");
         return;
       }
-      let totalAssignments = 0;
+      
+      let totalAssignments = 0; 
       let totalRead = 0;
+      let pendingGroupsCount = 0;
 
       tasks.forEach(task => {
         if(task.assignments) {
           task.assignments.forEach(assign => {
-            totalAssignments++;
-            if (assign.status === 'รับทราบแล้ว') totalRead++;
+            if (assign.status === 'รับทราบแล้ว') {
+              totalRead++;
+              totalAssignments++;
+            } else if (assign.status === 'รอยืนยัน') {
+              totalAssignments++;
+              pendingGroupsCount++;
+            }
           });
         }
       });
-
+      
       let percent = totalAssignments > 0 ? Math.round((totalRead / totalAssignments) * 100) : 0;
       
       document.getElementById('total-ack-percent').innerText = `${percent}%`;
       document.getElementById('stat-read-count').innerText = totalRead;
-      document.getElementById('stat-total-count').innerText = totalAssignments;
-      document.getElementById('total-progress-bar').style.width = `${percent}%`;
+      document.getElementById('stat-total-topics').innerText = tasks.length;
+      document.getElementById('stat-pending-groups').innerText = pendingGroupsCount;
+      document.getElementById('stat-svg-circle').setAttribute("stroke-dasharray", `${percent}, 100`);
     }
 
-    function renderSMListForm() {
-      const grouped = {};
-      globalSMList.forEach(sm => {
-        if (!grouped[sm.department]) grouped[sm.department] = [];
-        grouped[sm.department].push(sm.name);
-      });
-
-      let html = '';
-      let deptIndex = 0;
-      for (const dept in grouped) {
-        deptIndex++;
-        html += `
-          <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-            <div class="flex items-center justify-between bg-slate-100 p-3 border-b border-slate-200">
-              <button type="button" onclick="toggleDetails('dept-list-${deptIndex}')" class="flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-blue-600 transition focus:outline-none">
-                <span>🏢 ${dept} (${grouped[dept].length} คน)</span>
-                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-              </button>
-              <button type="button" onclick="selectAllInDept('dept-list-${deptIndex}', this)" class="text-[10px] bg-blue-50 text-blue-600 font-bold px-2 py-1 rounded-md border border-blue-200 hover:bg-blue-600 hover:text-white transition focus:outline-none">
-                ☑️ เลือกทั้งแผนก
-              </button>
-            </div>
-            <div id="dept-list-${deptIndex}" class="hidden p-2.5 space-y-1.5 bg-white border-t border-slate-100">
-        `;
-        
-        grouped[dept].forEach(smName => {
-          html += `
-            <label class="flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-100 cursor-pointer hover:bg-blue-50/40 transition">
-              <input type="checkbox" name="sm-target" value="${smName}" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
-              <span class="text-sm text-slate-700 font-medium">${smName}</span>
-            </label>
-          `;
-        });
-        
-        html += `</div></div>`;
-      }
-      document.getElementById('sm-department-groups').innerHTML = html;
-    }
-
-    function selectAllInDept(containerId, btn) {
-      const container = document.getElementById(containerId);
-      const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-      const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    function generateGroupStatsHtml(topicId, groupStats, assignments) {
+      if (!groupStats) return '';
       
-      checkboxes.forEach(cb => { cb.checked = !allChecked; });
-
-      if (!allChecked) {
-        btn.innerText = "✖️ ยกเลิกแผนกนี้";
-        btn.classList.replace('bg-blue-50', 'bg-red-50');
-        btn.classList.replace('text-blue-600', 'text-red-600');
-        btn.classList.replace('border-blue-200', 'border-red-200');
-        container.classList.remove('hidden');
-      } else {
-        btn.innerText = "☑️ เลือกทั้งแผนก";
-        btn.classList.replace('bg-red-50', 'bg-blue-50');
-        btn.classList.replace('text-red-600', 'text-blue-600');
-        btn.classList.replace('border-red-200', 'border-blue-200');
+      let activeStats = groupStats.filter(stat => stat.isTarget);
+      
+      if (activeStats.length === 0) {
+        return `<div class="text-xs text-slate-400 bg-slate-50 p-2.5 rounded-xl border text-center">ไม่ได้ระบุกลุ่มเป้าหมาย</div>`;
       }
+
+      let html = '<div class="grid grid-cols-2 gap-2 mt-1.5 mb-2.5">';
+      
+      activeStats.forEach((stat, idx) => {
+        let groupUsers = assignments ? assignments.filter(a => a.group === stat.groupName && a.status === 'รับทราบแล้ว') : [];
+        let collapseId = `list-${topicId}-${idx}`;
+
+        html += `
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:border-blue-300 transition">
+            <button onclick="toggleDetails('${collapseId}')" class="w-full bg-emerald-50/70 hover:bg-emerald-100/80 px-2.5 py-2 flex justify-between items-center transition focus:outline-none overflow-hidden">
+              <span class="text-[11px] font-bold text-slate-700 flex items-center gap-0.5 truncate mr-1">
+                <span class="truncate">👥 ${stat.groupName}</span>
+                <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+              </span>
+              <span class="text-[10px] font-extrabold text-emerald-600 bg-white px-1.5 py-0.5 rounded-md border border-emerald-100 shrink-0 whitespace-nowrap">${stat.ackCount} คน</span>
+            </button>
+
+            <div id="${collapseId}" class="hidden p-1.5 bg-slate-50/50 border-t border-slate-100 space-y-1 max-h-36 overflow-y-auto">
+        `;
+
+        if (groupUsers.length === 0) {
+          html += `<div class="text-[10px] text-slate-400 text-center py-1">ยังไม่มีใครยืนยัน</div>`;
+        } else {
+          groupUsers.forEach(user => {
+            html += `
+              <div class="bg-white p-1.5 rounded border border-slate-100 text-slate-600 flex justify-between items-center gap-2 overflow-hidden">
+                <div class="text-[10px] font-bold truncate flex-1">👤 ${user.name}</div>
+                <div class="text-[9px] text-slate-400 font-semibold tracking-tight shrink-0 whitespace-nowrap text-right">📅 ${user.time}</div>
+              </div>
+            `;
+          });
+        }
+
+        html += `</div></div>`;
+      });
+      
+      html += '</div>';
+      return html;
     }
 
     function renderTasks(tasks) {
       let html = '';
       if(!tasks || tasks.length === 0) {
-        html = '<div class="bg-white p-6 rounded-2xl text-center text-slate-400 text-sm border">ยังไม่มีการแจ้งเรื่องในขณะนี้</div>';
+        html = '<div class="bg-white p-6 rounded-2xl text-center text-slate-400 text-xs border">ยังไม่มีการแจ้งเรื่องในขณะนี้</div>';
       } else {
         tasks.forEach(task => {
-          let taskTotal = task.assignments ? task.assignments.length : 0;
-          let taskRead = task.assignments ? task.assignments.filter(a => a.status === 'รับทราบแล้ว').length : 0;
-          let taskPercent = taskTotal > 0 ? Math.round((taskRead / taskTotal) * 100) : 0;
-
-          let percentColor = 'text-amber-500';
-          if(taskPercent === 100) percentColor = 'text-emerald-500';
-          else if(taskPercent === 0) percentColor = 'text-rose-500';
+          let totalReadCount = task.assignments ? task.assignments.filter(a => a.status === 'รับทราบแล้ว').length : 0;
 
           html += `
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 shadow-slate-100/50">
               <div class="flex justify-between items-start gap-2 mb-2">
-                <h3 class="font-bold text-slate-800 text-base leading-snug">${task.title}</h3>
-                <div class="text-right">
-                  <span class="text-sm font-extrabold ${percentColor}">${taskPercent}%</span>
-                  <span class="text-[9px] text-slate-400 block font-medium">รับทราบแล้ว (${taskRead}/${taskTotal})</span>
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-snug">${task.title}</h3>
+                <div class="text-right whitespace-nowrap shrink-0">
+                  <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">อ่านแล้ว ${totalReadCount} คน</span>
                 </div>
               </div>
               
-              <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl mb-3 whitespace-pre-wrap">${task.detail}</p>
-              <div class="text-xs text-slate-400 mb-3">โดย: ${task.createdBy} | เมื่อ: ${task.createdAt}</div>
+              <p class="text-xs sm:text-sm text-slate-600 bg-slate-50 p-3 rounded-xl mb-3 whitespace-pre-wrap leading-relaxed">${task.detail}</p>
+              
+              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">📊 สถิติรับทราบ (คลิกที่กลุ่มเพื่อดูรายชื่อ):</div>
+              ${generateGroupStatsHtml(task.id, task.groupStats, task.assignments)}
+
+              <div class="text-[10px] text-slate-400 mt-2">โดย: ${task.createdBy} | เมื่อ: ${task.createdAt}</div>
           `;
 
           if (!isGM) {
             html += `
-              <button onclick="openAckModal('${task.id}', '${task.title}')" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm shadow-md shadow-emerald-100">
+              <button onclick="openAckModal('${task.id}', '${task.title}')" class="w-full bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow-md shadow-emerald-100 mt-2.5">
                 ✅ ฉันรับทราบเรื่องนี้แล้ว
               </button>
             `;
           }
-
-          html += `
-            <div class="mt-2 pt-2 border-t border-slate-100">
-              <button onclick="toggleDetails('details-${task.id}')" class="w-full text-left text-xs font-bold text-blue-600 flex items-center justify-between py-1 hover:underline">
-                <span>🔍 คลิกเพื่อดูรายละเอียดผู้รับทราบรายคน</span>
-                <svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
-              </button>
-              
-              <div id="details-${task.id}" class="hidden mt-2 space-y-1.5">
-          `;
           
-          if(task.assignments) {
-            task.assignments.forEach(assign => {
-              let isAck = assign.status === 'รับทราบแล้ว';
-              html += `
-                <div class="flex justify-between text-xs p-2 rounded-lg ${isAck ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}">
-                  <span class="font-medium">👤 ${assign.name}</span>
-                  <span class="font-bold">${isAck ? `🟢 รับทราบแล้ว (${assign.time})` : '🔴 ยังไม่ได้อ่าน'}</span>
-                </div>
-              `;
-            });
-          }
-          
-          html += `</div></div></div>`;
+          html += `</div>`;
         });
       }
       document.getElementById('task-list').innerHTML = html;
     }
 
-    function toggleDetails(elementId) {
-      const element = document.getElementById(elementId);
-      element.classList.toggle('hidden');
-    }
+    function toggleDetails(elementId) { document.getElementById(elementId).classList.toggle('hidden'); }
 
     function openAckModal(topicId, title) {
       document.getElementById('modal-topic-id').value = topicId;
       document.getElementById('modal-task-title').innerText = `เรื่อง: ${title}`;
-      document.getElementById('modal-sm-password').value = '';
+      document.getElementById('modal-sm-input-name').value = ''; 
       
       const targetTask = currentTasks.find(t => t.id === topicId);
-      let selectHtml = '<option value="">-- กรุณาเลือกชื่อของคุณ --</option>';
+      let groupSelect = document.getElementById('modal-group-select');
+      
+      let allowedGroups = [];
       if (targetTask && targetTask.assignments) {
         targetTask.assignments.forEach(assign => {
-          if(assign.status !== 'รับทราบแล้ว') {
-            selectHtml += `<option value="${assign.name}">${assign.name}</option>`;
+          if (assign.group && !allowedGroups.includes(assign.group)) {
+            allowedGroups.push(assign.group);
           }
         });
       }
-      document.getElementById('modal-sm-select').innerHTML = selectHtml;
+
+      let groupHtml = '<option value="">-- เลือกกลุ่มตำแหน่งของคุณ --</option>';
+      if (allowedGroups.length > 0) {
+        allowedGroups.forEach(g => { groupHtml += `<option value="${g}">${g}</option>`; });
+      } else {
+        groupHtml = '<option value="">-- ใบงานนี้ไม่ระบุกลุ่มเป้าหมาย --</option>';
+      }
+      
+      groupSelect.innerHTML = groupHtml;
       document.getElementById('ack-modal').classList.remove('hidden');
     }
 
@@ -458,33 +375,31 @@
 
     function submitAck() {
       const topicId = document.getElementById('modal-topic-id').value;
-      const smName = document.getElementById('modal-sm-select').value;
-      const password = document.getElementById('modal-sm-password').value;
+      const selectedGroup = document.getElementById('modal-group-select').value;
+      const typedName = document.getElementById('modal-sm-input-name').value.trim();
 
-      if (!smName || !password) { alert('กรุณาเลือกชื่อและใส่รหัสผ่านของคุณ'); return; }
+      if (!selectedGroup) { alert('กรุณาเลือกกลุ่มตำแหน่งของคุณก่อนครับ'); return; }
+      if (!typedName) { alert('กรุณาพิมพ์ชื่อ-นามสกุลจริงของคุณลงในช่องค้นหาด้วยครับ'); return; }
 
       const btn = document.getElementById('modal-submit-btn');
-      btn.disabled = true; btn.innerText = 'กำลังตรวจสอบ...';
+      btn.disabled = true; btn.innerText = 'กำลังบันทึกข้อมูล...';
 
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'acknowledgeTask', topicId: topicId, smName: smName, password: password })
+        body: JSON.stringify({ action: 'acknowledgeTask', topicId: topicId, smName: typedName, userGroup: selectedGroup })
       })
+      .then(res => res.json())
       .then(res => {
-        if (!res.ok) throw new Error('Network error');
-        return res.json();
-      })
-      .then(res => {
-        btn.disabled = false; btn.innerText = '🔒 ยืนยันรับทราบ';
+        btn.disabled = false; btn.innerText = '✅ ยืนยันรับทราบงาน';
         if (res.success) { 
-          alert('บันทึกหลักฐานการรับทราบเรียบร้อยแล้ว!'); 
+          alert('บันทึกการรับทราบเรียบร้อยแล้ว!'); 
           closeAckModal(); 
           loadData(); 
         } else { alert(res.message); }
       })
       .catch(err => {
-        btn.disabled = false; btn.innerText = '🔒 ยืนยันรับทราบ';
+        btn.disabled = false; btn.innerText = '✅ ยืนยันรับทราบงาน';
         alert('เกิดข้อผิดพลาด: ' + err.message);
       });
     }
@@ -492,10 +407,10 @@
     function submitJob() {
       let title = document.getElementById('job-title').value;
       let detail = document.getElementById('job-detail').value;
-      let checkedSMs = [];
-      document.querySelectorAll('input[name="sm-target"]:checked').forEach(cb => { checkedSMs.push(cb.value); });
+      let checkedGroups = [];
+      document.querySelectorAll('input[name="target-group"]:checked').forEach(cb => { checkedGroups.push(cb.value); });
 
-      if(!title || !detail || checkedSMs.length === 0) { alert('กรุณากรอกข้อมูลและเลือกผู้รับทราบอย่างน้อย 1 ท่าน'); return; }
+      if(!title || !detail || checkedGroups.length === 0) { alert('กรุณากรอกข้อมูลและเลือกกลุ่มผู้รับทราบอย่างน้อย 1 กลุ่ม'); return; }
 
       const btn = document.getElementById('submit-btn');
       btn.disabled = true; btn.innerText = 'กำลังส่งระบบ...';
@@ -503,21 +418,17 @@
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'createTopic', title: title, detail: detail, targetSMs: checkedSMs })
+        body: JSON.stringify({ action: 'createTopic', title: title, detail: detail, targetGroups: checkedGroups })
       })
+      .then(res => res.json())
       .then(res => {
-        if (!res.ok) throw new Error('Network error');
-        return res.json();
-      })
-      .then(res => {
-        document.getElementById('job-title').value = '';
-        document.getElementById('job-detail').value = '';
-        btn.disabled = false; btn.innerText = '🚀 ส่งเรื่องแจ้งงาน';
-        loadData();
-        alert('ส่งเรื่องแจ้งงานเรียบร้อยแล้ว!');
+        clearGMForm();
+        btn.disabled = false; btn.innerText = '🚀 ส่งเรื่องแจ้งงานตามกลุ่ม';
+        switchTab('dashboard');
+        alert('ส่งเรื่องแจ้งงานไปยังกลุ่มพนักงานเรียบร้อยแล้ว!');
       })
       .catch(err => {
-        btn.disabled = false; btn.innerText = '🚀 ส่งเรื่องแจ้งงาน';
+        btn.disabled = false; btn.innerText = '🚀 ส่งเรื่องแจ้งงานตามกลุ่ม';
         alert('เกิดข้อผิดพลาด: ' + err.message);
       });
     }
