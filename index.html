@@ -142,18 +142,33 @@
       document.getElementById('target-group-checkboxes').innerHTML = html;
     }
 
+    // 🔒 ย้ายรหัสผ่านไปเช็คหลังบ้านผ่าน POST แทนการใส่ไว้ดื้อๆ
     function toggleGMRole() {
       if (!isGM) {
         let password = prompt("กรุณากรอกรหัสผ่านสำหรับสิทธิ์ GM:");
-        if (password === "1234") {
-          isGM = true;
-          document.getElementById('gm-toggle-btn').innerHTML = "<span>ออกจากระบบ</span>";
-          document.getElementById('gm-toggle-btn').className = "text-xs font-bold bg-red-500 hover:bg-red-600 text-white px-3.5 py-2 rounded-xl shadow-md active:scale-95 transition flex items-center gap-1.5";
-          document.getElementById('user-info').innerText = "โหมดผู้ใช้งาน: คุณชุลีวัลย์ (GM)";
-          document.getElementById('gm-tabs').classList.remove('hidden'); 
-          document.getElementById('list-header').innerText = "📊 รายการงานและสถิติรายชิ้นงาน";
-          switchTab('create');
-        } else if (password !== null) { alert("รหัสผ่านไม่ถูกต้อง!"); }
+        if (password === null) return;
+        
+        // ส่งรหัสผ่านไปเช็คความถูกต้องที่ Apps Script เพื่อความปลอดภัย
+        fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'checkGMPassword', password: password })
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            isGM = true;
+            document.getElementById('gm-toggle-btn').innerHTML = "<span>ออกจากระบบ</span>";
+            document.getElementById('gm-toggle-btn').className = "text-xs font-bold bg-red-500 hover:bg-red-600 text-white px-3.5 py-2 rounded-xl shadow-md active:scale-95 transition flex items-center gap-1.5";
+            document.getElementById('user-info').innerText = "โหมดผู้ใช้งาน: " + res.gmName;
+            document.getElementById('gm-tabs').classList.remove('hidden'); 
+            document.getElementById('list-header').innerText = "📊 รายการงานและสถิติรายชิ้นงาน";
+            switchTab('create');
+          } else {
+            alert(res.message || "รหัสผ่านไม่ถูกต้อง!");
+          }
+        })
+        .catch(err => alert("เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์: " + err.message));
       } else {
         isGM = false;
         document.getElementById('gm-toggle-btn').innerHTML = "<span>เข้าสู่ระบบ</span>";
@@ -181,7 +196,7 @@
 
       if (!isGM) {
         createView.classList.add('hidden');
-        dashView.classList.remove('hidden'); // แก้ไขจาก .remove() เป็น .classList.remove()
+        dashView.classList.remove('hidden');
         statsBlock.classList.remove('hidden');
         return;
       }
@@ -254,36 +269,39 @@
       document.getElementById('stat-svg-circle').setAttribute("stroke-dasharray", `${percent}, 100`);
     }
 
+    // 📊 ปรับปรุง UX ส่วนสถิติให้เห็นกลุ่มที่ยังค้างชัดเจนขึ้น
     function generateGroupStatsHtml(topicId, groupStats, assignments) {
       if (!groupStats) return '';
-      
       let activeStats = groupStats.filter(stat => stat.isTarget);
-      
       if (activeStats.length === 0) {
         return `<div class="text-xs text-slate-400 bg-slate-50 p-2.5 rounded-xl border text-center">ไม่ได้ระบุกลุ่มเป้าหมาย</div>`;
       }
 
       let html = '<div class="grid grid-cols-2 gap-2 mt-1.5 mb-2.5">';
-      
       activeStats.forEach((stat, idx) => {
         let groupUsers = assignments ? assignments.filter(a => a.group === stat.groupName && a.status === 'รับทราบแล้ว') : [];
         let collapseId = `list-${topicId}-${idx}`;
+        
+        // 🎨 เปลี่ยนสีถ้ามีคนยังไม่ได้ลงชื่อในกลุ่มนั้นๆ เพื่อให้เตะตา GM
+        let hasPending = stat.pendingCount > 0;
+        let badgeClass = hasPending 
+          ? "text-[10px] font-extrabold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200 shrink-0 whitespace-nowrap"
+          : "text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-100 shrink-0 whitespace-nowrap";
 
         html += `
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:border-blue-300 transition">
-            <button onclick="toggleDetails('${collapseId}')" class="w-full bg-emerald-50/70 hover:bg-emerald-100/80 px-2.5 py-2 flex justify-between items-center transition focus:outline-none overflow-hidden">
+            <button onclick="toggleDetails('${collapseId}')" class="w-full bg-slate-50 hover:bg-slate-100 px-2.5 py-2 flex justify-between items-center transition focus:outline-none overflow-hidden">
               <span class="text-[11px] font-bold text-slate-700 flex items-center gap-0.5 truncate mr-1">
                 <span class="truncate">👥 ${stat.groupName}</span>
                 <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </span>
-              <span class="text-[10px] font-extrabold text-emerald-600 bg-white px-1.5 py-0.5 rounded-md border border-emerald-100 shrink-0 whitespace-nowrap">${stat.ackCount} คน</span>
+              <span class="${badgeClass}">${stat.ackCount} คน ${hasPending ? '(ค้าง)' : ''}</span>
             </button>
-
             <div id="${collapseId}" class="hidden p-1.5 bg-slate-50/50 border-t border-slate-100 space-y-1 max-h-36 overflow-y-auto">
         `;
 
         if (groupUsers.length === 0) {
-          html += `<div class="text-[10px] text-slate-400 text-center py-1">ยังไม่มีใครยืนยัน</div>`;
+          html += `<div class="text-[10px] text-amber-500 text-center py-1 font-medium">⏳ ยังไม่มีใครลงชื่อรับทราบ</div>`;
         } else {
           groupUsers.forEach(user => {
             html += `
@@ -294,10 +312,8 @@
             `;
           });
         }
-
         html += `</div></div>`;
       });
-      
       html += '</div>';
       return html;
     }
@@ -324,7 +340,14 @@
               <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">📊 สถิติรับทราบ (คลิกที่กลุ่มเพื่อดูรายชื่อ):</div>
               ${generateGroupStatsHtml(task.id, task.groupStats, task.assignments)}
 
-              <div class="text-[10px] text-slate-400 mt-2">โดย: ${task.createdBy} | เมื่อ: ${task.createdAt}</div>
+              <div class="flex justify-between items-center mt-3 pt-1 border-t border-slate-50">
+                <div class="text-[10px] text-slate-400">โดย: ${task.createdBy} | เมื่อ: ${task.createdAt}</div>
+                ${isGM ? `
+                  <button onclick="deleteJob('${task.id}', '${task.title}')" class="text-[10px] font-bold text-rose-500 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-100 transition active:scale-95 flex items-center gap-1">
+                    🗑️ ลบเรื่องนี้
+                  </button>
+                ` : ''}
+              </div>
           `;
 
           if (!isGM) {
@@ -342,6 +365,27 @@
     }
 
     function toggleDetails(elementId) { document.getElementById(elementId).classList.toggle('hidden'); }
+
+    // 🗑️ ฟังก์ชันฝั่งหน้าบ้านสำหรับกดส่งคำสั่งลบข้อมูลไปยัง Google Sheets
+    function deleteJob(topicId, title) {
+      if (!confirm(`คุณชุลีวัลย์ แน่ใจใช่ไหมครับว่าต้องการลบใบงานเรื่อง "${title}"? \n(การลบนี้จะนำข้อมูลสถิติออกจากชีตทั้งหมด)`)) return;
+      
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'deleteTopic', topicId: topicId })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          alert('ลบข้อมูลเรียบร้อยแล้วครับ!');
+          loadData();
+        } else {
+          alert('ลบไม่สำเร็จ: ' + res.message);
+        }
+      })
+      .catch(err => alert('เกิดข้อผิดพลาด: ' + err.message));
+    }
 
     function openAckModal(topicId, title) {
       document.getElementById('modal-topic-id').value = topicId;
